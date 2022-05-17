@@ -41,13 +41,13 @@ class JointData:
 
 
 class SerialConnection:
-    def __init__(self):
-        self.port = serial.Serial(port='COM3', baudrate=921600, parity=serial.PARITY_NONE,
+    def __init__(self, vis):
+        self.port = serial.Serial(port='/dev/ttyACM0', baudrate=921600, parity=serial.PARITY_NONE,
                                   stopbits=1, bytesize=8, timeout=1)
         self.port.flush()
         self.read_bytes_buffer = b''
         self.read_bytes_buffer_mtx = threading.Lock()
-        self.received_data = JointDataVisualization()
+        self.received_data = vis
         self.data_queue = queue.Queue()  # ????
 
         self.read_serial_thread = threading.Thread(target=self.read_serial_buffer, daemon=True).start()

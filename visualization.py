@@ -12,6 +12,7 @@ class JointDataVisualization(JointData):
     lines: dict
 
     def __init__(self):
+        JointData.__init__(self)
         self.fig = plt.Figure()
         self.axes = {}
         self.lines = {}
@@ -36,27 +37,40 @@ class JointDataVisualization(JointData):
         self.axes['tq_D_ax'] = self.fig.add_subplot(gs[5, 3:], sharex=self.axes['t_pos_ax'], title='tq_D')
 
         lines = []
-        (self.lines['t_pos_ax'],) = self.axes['t_pos_ax'].plot([], [])
-        (self.lines['c_pos_ax'],) = self.axes['c_pos_ax'].plot([], [])
-        (self.lines['t_vel_ax'],) = self.axes['t_vel_ax'].plot([], [])
-        (self.lines['c_vel_ax'],) = self.axes['c_vel_ax'].plot([], [])
-        (self.lines['t_tq_ax'],) = self.axes['t_tq_ax'].plot([], [])
-        (self.lines['tq_ID_ax'],) = self.axes['tq_ID_ax'].plot([], [])
-        (self.lines['tq_fr_ax'],) = self.axes['tq_fr_ax'].plot([], [])
-        (self.lines['tq_PID_ax'],) = self.axes['tq_PID_ax'].plot([], [])
-        (self.lines['tq_P_ax'],) = self.axes['tq_P_ax'].plot([], [])
-        (self.lines['tq_I_ax'],) = self.axes['tq_I_ax'].plot([], [])
-        (self.lines['tq_D_ax'],) = self.axes['tq_D_ax'].plot([], [])
+        (self.lines['t_pos_ax'],) = self.axes['t_pos_ax'].plot(self.time, self.t_pos)
+        (self.lines['c_pos_ax'],) = self.axes['c_pos_ax'].plot(self.time, self.c_pos)
+        (self.lines['t_vel_ax'],) = self.axes['t_vel_ax'].plot(self.time, self.t_vel)
+        (self.lines['c_vel_ax'],) = self.axes['c_vel_ax'].plot(self.time, self.c_vel)
+        (self.lines['t_tq_ax'],) = self.axes['t_tq_ax'].plot(self.time, self.t_tq)
+        (self.lines['tq_ID_ax'],) = self.axes['tq_ID_ax'].plot(self.time, self.tq_ID)
+        (self.lines['tq_fr_ax'],) = self.axes['tq_fr_ax'].plot(self.time, self.tq_fr)
+        (self.lines['tq_PID_ax'],) = self.axes['tq_PID_ax'].plot(self.time, self.tq_PID)
+        (self.lines['tq_P_ax'],) = self.axes['tq_P_ax'].plot(self.time, self.tq_P)
+        (self.lines['tq_I_ax'],) = self.axes['tq_I_ax'].plot(self.time, self.tq_I)
+        (self.lines['tq_D_ax'],) = self.axes['tq_D_ax'].plot(self.time, self.tq_D)
 
         self.bm = BlitManager(self.fig.canvas,list(self.lines.values()))
         plt.show(block=False)
 
     def update(self):
-        for ax in self.axes:
+        self.lines['t_pos_ax'].set_data(self.time, self.t_pos)
+        self.lines['c_pos_ax'].set_data(self.time, self.c_pos)
+        self.lines['t_vel_ax'].set_data(self.time, self.t_vel)
+        self.lines['c_vel_ax'].set_data(self.time, self.c_vel)
+        self.lines['t_tq_ax'].set_data(self.time, self.t_tq)
+        self.lines['tq_ID_ax'].set_data(self.time, self.tq_ID)
+        self.lines['tq_fr_ax'].set_data(self.time, self.tq_fr)
+        self.lines['tq_PID_ax'].set_data(self.time, self.tq_PID)
+        self.lines['tq_P_ax'].set_data(self.time, self.tq_P)
+        self.lines['tq_I_ax'].set_data(self.time, self.tq_I)
+        self.lines['tq_D_ax'].set_data(self.time, self.tq_D)
+
+        for ax in self.axes.values():
             ax.relim()
             ax.autoscale_view()
+
         self.bm.update()
-        plt.draw()
+        # plt.draw()
 
 
 class BlitManager:
