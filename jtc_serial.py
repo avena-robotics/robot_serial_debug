@@ -11,7 +11,7 @@ from typing import List
 import math
 
 JOINT_POSMAX = math.pi
-JOINT_VELMAX = 2 * math.pi
+JOINT_VELMAX = 2
 JOINT_ACCMAX = 4 * math.pi
 JOINT_TORQUEMAX = 360.0
 MAX_INT16 = 32767.0
@@ -115,36 +115,36 @@ class SerialConnection:
 
         # send received frame to processing
         offset = 8
-        joint_data_len = int((nb-offset-2)/nd)
+        joint_data_len = int((nb - offset - 2) / nd)
         for i in range(nd):
-            self.data_queue.put(read_buffer[offset+joint_data_len*i:offset+joint_data_len*(i+1)])
+            self.data_queue.put(read_buffer[offset + joint_data_len * i:offset + joint_data_len * (i + 1)])
         self.read_bytes_buffer = self.read_bytes_buffer[header_idx + nb:]
         return
 
     def process_queue(self):
         while True:
             frame = self.data_queue.get()
-            self.process_frame(frame, self.received_data)
+            self.process_frame(frame, self.received_data, 1)
             self.data_queue.task_done()
 
     # fml
-    def process_frame(self, frame: bytearray, joint_data: JointData):
+    def process_frame(self, frame: bytearray, joint_data: JointData, joint_id: int):
+        offset = joint_id * 27
         joint_data.time.append(struct.unpack(">f", frame[0:4])[0])
-        joint_data.t_pos.append(struct.unpack(">H", frame[4:6])[0] / JOINT_POSMAX * MAX_INT16)
-        joint_data.t_vel.append(struct.unpack(">H", frame[6:8])[0] / JOINT_VELMAX * MAX_INT16)
-        joint_data.t_acc.append(struct.unpack(">H", frame[8:10])[0] / JOINT_ACCMAX * MAX_INT16)
-        joint_data.c_pos.append(struct.unpack(">H", frame[10:12])[0] / JOINT_POSMAX * MAX_INT16)
-        joint_data.c_vel.append(struct.unpack(">H", frame[12:14])[0] / JOINT_VELMAX * MAX_INT16)
-        joint_data.c_tq.append(struct.unpack(">H", frame[14:16])[0] / JOINT_TORQUEMAX * MAX_INT16)
-        joint_data.c_temp.append(struct.unpack(">B", frame[16:17])[0])
-        joint_data.t_tq.append(struct.unpack(">H", frame[17:19])[0] / JOINT_TORQUEMAX * MAX_INT16)
-        joint_data.tq_P.append(struct.unpack(">H", frame[19:21])[0] / JOINT_TORQUEMAX * MAX_INT16)
-        joint_data.tq_I.append(struct.unpack(">H", frame[21:23])[0] / JOINT_TORQUEMAX * MAX_INT16)
-        joint_data.tq_D.append(struct.unpack(">H", frame[23:25])[0] / JOINT_TORQUEMAX * MAX_INT16)
-        joint_data.tq_PID.append(struct.unpack(">H", frame[25:27])[0] / JOINT_TORQUEMAX * MAX_INT16)
-        joint_data.tq_fr.append(struct.unpack(">H", frame[27:29])[0] / JOINT_TORQUEMAX * MAX_INT16)
-        joint_data.tq_ID.append(struct.unpack(">H", frame[29:31])[0] / JOINT_TORQUEMAX * MAX_INT16)
-
+        joint_data.t_pos.append(struct.unpack(">h", frame[offset + 4:offset + 6])[0] / MAX_INT16 * JOINT_POSMAX)
+        joint_data.t_vel.append(struct.unpack(">h", frame[offset + 6:offset + 8])[0] / MAX_INT16 * JOINT_VELMAX)
+        joint_data.t_acc.append(struct.unpack(">h", frame[offset + 8:offset + 10])[0] / MAX_INT16 * JOINT_ACCMAX)
+        joint_data.c_pos.append(struct.unpack(">h", frame[offset + 10:offset + 12])[0] / MAX_INT16 * JOINT_POSMAX)
+        joint_data.c_vel.append(struct.unpack(">h", frame[offset + 12:offset + 14])[0] / MAX_INT16 * JOINT_VELMAX)
+        joint_data.c_tq.append(struct.unpack(">h", frame[offset + 14:offset + 16])[0] / MAX_INT16 * JOINT_TORQUEMAX)
+        joint_data.c_temp.append(struct.unpack(">B", frame[offset + 16:offset + 17])[0])
+        joint_data.t_tq.append(struct.unpack(">h", frame[offset + 17:offset + 19])[0] / MAX_INT16 * JOINT_TORQUEMAX)
+        joint_data.tq_P.append(struct.unpack(">h", frame[offset + 19:offset + 21])[0] / MAX_INT16 * JOINT_TORQUEMAX)
+        joint_data.tq_I.append(struct.unpack(">h", frame[offset + 21:offset + 23])[0] / MAX_INT16 * JOINT_TORQUEMAX)
+        joint_data.tq_D.append(struct.unpack(">h", frame[offset + 23:offset + 25])[0] / MAX_INT16 * JOINT_TORQUEMAX)
+        joint_data.tq_PID.append(struct.unpack(">h", frame[offset + 25:offset + 27])[0] / MAX_INT16 * JOINT_TORQUEMAX)
+        joint_data.tq_fr.append(struct.unpack(">h", frame[offset + 27:offset + 29])[0] / MAX_INT16 * JOINT_TORQUEMAX)
+        joint_data.tq_ID.append(struct.unpack(">h", frame[offset + 29:offset + 31])[0] / MAX_INT16 * JOINT_TORQUEMAX)
 
 if __name__ == '__main__':
     ser = SerialConnection()
