@@ -24,29 +24,29 @@ class JointDataVisualization(JointData):
 
         gs = plt.GridSpec(6, 6, figure=self.fig)
 
-        self.axes['t_pos_ax'] = self.fig.add_subplot(gs[0, :3], title='t_pos')
-        self.axes['c_pos_ax'] = self.fig.add_subplot(gs[1, :3], sharex=self.axes['t_pos_ax'], title='c_pos')
-        self.axes['t_vel_ax'] = self.fig.add_subplot(gs[0, 3:], sharex=self.axes['t_pos_ax'], title='t_vel')
-        self.axes['c_vel_ax'] = self.fig.add_subplot(gs[1, 3:], sharex=self.axes['t_pos_ax'], title='c_vel')
-        self.axes['t_tq_ax'] = self.fig.add_subplot(gs[2, :], sharex=self.axes['t_pos_ax'], title='t_tq')
-        self.axes['tq_ID_ax'] = self.fig.add_subplot(gs[3, :3], sharex=self.axes['t_pos_ax'], title='tq_ID')
-        self.axes['tq_fr_ax'] = self.fig.add_subplot(gs[4, :3], sharex=self.axes['t_pos_ax'], title='tq_fr')
-        self.axes['tq_PID_ax'] = self.fig.add_subplot(gs[5, :3], sharex=self.axes['t_pos_ax'], title='tq_PID')
-        self.axes['tq_P_ax'] = self.fig.add_subplot(gs[3, 3:], sharex=self.axes['t_pos_ax'], title='tq_P')
-        self.axes['tq_I_ax'] = self.fig.add_subplot(gs[4, 3:], sharex=self.axes['t_pos_ax'], title='tq_I')
-        self.axes['tq_D_ax'] = self.fig.add_subplot(gs[5, 3:], sharex=self.axes['t_pos_ax'], title='tq_D')
+        self.axes['pos_ax'] = self.fig.add_subplot(gs[0:2, :3], title='pos')
+        self.axes['vel_ax'] = self.fig.add_subplot(gs[0:2, 3:], sharex=self.axes['pos_ax'], title='vel')
+
+        self.axes['tq_ax'] = self.fig.add_subplot(gs[2:4, :], sharex=self.axes['pos_ax'], title='tq')
+
+        self.axes['tq_ID_ax'] = self.fig.add_subplot(gs[4, :3], sharex=self.axes['pos_ax'], title='tq_ID')
+        self.axes['tq_fr_ax'] = self.fig.add_subplot(gs[5, :3], sharex=self.axes['pos_ax'], title='tq_fr')
+
+        self.axes['tq_P_ax'] = self.fig.add_subplot(gs[4, 3:], sharex=self.axes['pos_ax'], title='tq_P')
+
+        self.axes['tq_D_ax'] = self.fig.add_subplot(gs[5, 3:], sharex=self.axes['pos_ax'], title='tq_D')
 
         lines = []
-        (self.lines['t_pos_ax'],) = self.axes['t_pos_ax'].plot(self.time, self.t_pos)
-        (self.lines['c_pos_ax'],) = self.axes['c_pos_ax'].plot(self.time, self.c_pos)
-        (self.lines['t_vel_ax'],) = self.axes['t_vel_ax'].plot(self.time, self.t_vel)
-        (self.lines['c_vel_ax'],) = self.axes['c_vel_ax'].plot(self.time, self.c_vel)
-        (self.lines['t_tq_ax'],) = self.axes['t_tq_ax'].plot(self.time, self.t_tq)
+        (self.lines['t_pos_ax'],) = self.axes['pos_ax'].plot(self.time, self.t_pos, color = 'blue')
+        (self.lines['c_pos_ax'],) = self.axes['pos_ax'].plot(self.time, self.c_pos, color = 'red')
+        (self.lines['t_vel_ax'],) = self.axes['vel_ax'].plot(self.time, self.t_vel,color='blue')
+        (self.lines['c_vel_ax'],) = self.axes['vel_ax'].plot(self.time, self.c_vel,color='red')
+        (self.lines['t_tq_ax'],) = self.axes['tq_ax'].plot(self.time, self.t_tq)
+        (self.lines['t_tq_ax'],) = self.axes['tq_ax'].plot(self.time, self.c_tq)
+
         (self.lines['tq_ID_ax'],) = self.axes['tq_ID_ax'].plot(self.time, self.tq_ID)
         (self.lines['tq_fr_ax'],) = self.axes['tq_fr_ax'].plot(self.time, self.tq_fr)
-        (self.lines['tq_PID_ax'],) = self.axes['tq_PID_ax'].plot(self.time, self.tq_PID)
         (self.lines['tq_P_ax'],) = self.axes['tq_P_ax'].plot(self.time, self.tq_P)
-        (self.lines['tq_I_ax'],) = self.axes['tq_I_ax'].plot(self.time, self.tq_I)
         (self.lines['tq_D_ax'],) = self.axes['tq_D_ax'].plot(self.time, self.tq_D)
 
         self.bm = BlitManager(self.fig.canvas,list(self.lines.values()))
@@ -58,11 +58,10 @@ class JointDataVisualization(JointData):
         self.lines['t_vel_ax'].set_data(self.time, self.t_vel)
         self.lines['c_vel_ax'].set_data(self.time, self.c_vel)
         self.lines['t_tq_ax'].set_data(self.time, self.t_tq)
+        self.lines['c_tq_ax'].set_data(self.time, self.c_tq)
         self.lines['tq_ID_ax'].set_data(self.time, self.tq_ID)
         self.lines['tq_fr_ax'].set_data(self.time, self.tq_fr)
-        self.lines['tq_PID_ax'].set_data(self.time, self.tq_PID)
         self.lines['tq_P_ax'].set_data(self.time, self.tq_P)
-        self.lines['tq_I_ax'].set_data(self.time, self.tq_I)
         self.lines['tq_D_ax'].set_data(self.time, self.tq_D)
 
         for ax in self.axes.values():
