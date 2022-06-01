@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from jtc_serial import JointData
 import matplotlib.style as mplstyle
+import time
 
 mplstyle.use('fast')
 
@@ -41,8 +42,10 @@ class JointDataVisualization(JointData):
         (self.lines['c_pos_ax'],) = self.axes['pos_ax'].plot(self.time, self.c_pos, color = 'red')
         (self.lines['t_vel_ax'],) = self.axes['vel_ax'].plot(self.time, self.t_vel,color='blue')
         (self.lines['c_vel_ax'],) = self.axes['vel_ax'].plot(self.time, self.c_vel,color='red')
-        (self.lines['t_tq_ax'],) = self.axes['tq_ax'].plot(self.time, self.t_tq)
-        (self.lines['t_tq_ax'],) = self.axes['tq_ax'].plot(self.time, self.c_tq)
+
+        # (self.lines['t_tq_ax'],) = self.axes['tq_ax'].plot(self.time, self.t_tq)
+        # (self.lines['c_tq_ax'],) = self.axes['tq_ax'].plot(self.time, self.c_tq)
+        (self.lines['t_err'],) = self.axes['tq_ax'].plot(self.time, self.t_err)
 
         (self.lines['tq_ID_ax'],) = self.axes['tq_ID_ax'].plot(self.time, self.tq_ID)
         (self.lines['tq_fr_ax'],) = self.axes['tq_fr_ax'].plot(self.time, self.tq_fr)
@@ -52,13 +55,38 @@ class JointDataVisualization(JointData):
         self.bm = BlitManager(self.fig.canvas,list(self.lines.values()))
         plt.show(block=False)
 
+    def clear_data(self):
+        self.t_pos.clear()
+        self.t_vel.clear()
+        self.t_acc.clear()
+        self.t_tq.clear()
+        self.tq_P.clear()
+        self.tq_I.clear()
+        self.tq_D.clear()
+        self.tq_PID.clear()
+        self.tq_fr.clear()
+        self.tq_ID.clear()
+        self.c_pos.clear()
+        self.c_vel.clear()
+        self.c_tq.clear()
+        self.c_temp.clear()
+        self.t_err.clear()
+        self.time.clear()
+
+    def monitor_mode(self):
+        self.clear_data()
+        while True:
+            self.update()
+            time.sleep(0.2)
+
     def update(self):
         self.lines['t_pos_ax'].set_data(self.time, self.t_pos)
         self.lines['c_pos_ax'].set_data(self.time, self.c_pos)
         self.lines['t_vel_ax'].set_data(self.time, self.t_vel)
         self.lines['c_vel_ax'].set_data(self.time, self.c_vel)
-        self.lines['t_tq_ax'].set_data(self.time, self.t_tq)
-        self.lines['c_tq_ax'].set_data(self.time, self.c_tq)
+        # self.lines['t_tq_ax'].set_data(self.time, self.t_tq)
+        # self.lines['c_tq_ax'].set_data(self.time, self.c_tq)
+        self.lines['t_err'].set_data(self.time, self.t_err)
         self.lines['tq_ID_ax'].set_data(self.time, self.tq_ID)
         self.lines['tq_fr_ax'].set_data(self.time, self.tq_fr)
         self.lines['tq_P_ax'].set_data(self.time, self.tq_P)
