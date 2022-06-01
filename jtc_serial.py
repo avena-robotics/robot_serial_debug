@@ -8,6 +8,7 @@ import time
 import asyncio
 import dataclasses
 from typing import List
+from collections import deque
 import math
 
 JOINT_POSMAX = math.pi
@@ -23,21 +24,22 @@ def get_crc(frame: bytes) -> int:
 
 @dataclasses.dataclass
 class JointData:
-    t_pos: List[float] = dataclasses.field(default_factory=list)
-    t_vel: List[float] = dataclasses.field(default_factory=list)
-    t_acc: List[float] = dataclasses.field(default_factory=list)
-    t_tq: List[float] = dataclasses.field(default_factory=list)
-    tq_P: List[float] = dataclasses.field(default_factory=list)
-    tq_I: List[float] = dataclasses.field(default_factory=list)
-    tq_D: List[float] = dataclasses.field(default_factory=list)
-    tq_PID: List[float] = dataclasses.field(default_factory=list)
-    tq_fr: List[float] = dataclasses.field(default_factory=list)
-    tq_ID: List[float] = dataclasses.field(default_factory=list)
-    c_pos: List[float] = dataclasses.field(default_factory=list)
-    c_vel: List[float] = dataclasses.field(default_factory=list)
-    c_tq: List[float] = dataclasses.field(default_factory=list)
-    c_temp: List[float] = dataclasses.field(default_factory=list)
-    time: List[float] = dataclasses.field(default_factory=list)
+    t_err: deque = dataclasses.field(default_factory=deque)
+    t_pos: deque = dataclasses.field(default_factory=deque)
+    t_vel: deque = dataclasses.field(default_factory=deque)
+    t_acc: deque = dataclasses.field(default_factory=deque)
+    t_tq: deque = dataclasses.field(default_factory=deque)
+    tq_P: deque = dataclasses.field(default_factory=deque)
+    tq_I: deque = dataclasses.field(default_factory=deque)
+    tq_D: deque = dataclasses.field(default_factory=deque)
+    tq_PID: deque = dataclasses.field(default_factory=deque)
+    tq_fr: deque = dataclasses.field(default_factory=deque)
+    tq_ID: deque = dataclasses.field(default_factory=deque)
+    c_pos: deque = dataclasses.field(default_factory=deque)
+    c_vel: deque = dataclasses.field(default_factory=deque)
+    c_tq: deque = dataclasses.field(default_factory=deque)
+    c_temp: deque = dataclasses.field(default_factory=deque)
+    time: deque = dataclasses.field(default_factory=deque)
 
 
 class SerialConnection:
@@ -129,6 +131,40 @@ class SerialConnection:
 
     # fml
     def process_frame(self, frame: bytearray, joint_data: JointData, joint_id: int):
+        if len(joint_data.time) >= 50000:
+            joint_data.time.rotate(-1)
+            joint_data.t_pos.rotate(-1)
+            joint_data.t_vel.rotate(-1)
+            joint_data.t_acc.rotate(-1)
+            joint_data.c_pos.rotate(-1)
+            joint_data.c_vel.rotate(-1)
+            joint_data.c_tq.rotate(-1)
+            joint_data.c_temp.rotate(-1)
+            joint_data.t_tq.rotate(-1)
+            joint_data.tq_P.rotate(-1)
+            joint_data.tq_I.rotate(-1)
+            joint_data.tq_D.rotate(-1)
+            joint_data.tq_PID.rotate(-1)
+            joint_data.tq_fr.rotate(-1)
+            joint_data.tq_ID.rotate(-1)
+            joint_data.t_err.rotate(-1)
+            joint_data.time.pop()
+            joint_data.t_pos.pop()
+            joint_data.t_vel.pop()
+            joint_data.t_acc.pop()
+            joint_data.c_pos.pop()
+            joint_data.c_vel.pop()
+            joint_data.c_tq.pop()
+            joint_data.c_temp.pop()
+            joint_data.t_tq.pop()
+            joint_data.tq_P.pop()
+            joint_data.tq_I.pop()
+            joint_data.tq_D.pop()
+            joint_data.tq_PID.pop()
+            joint_data.tq_fr.pop()
+            joint_data.tq_ID.pop()
+            joint_data.t_err.pop()
+
         offset = joint_id * 27
         joint_data.time.append(struct.unpack(">f", frame[0:4])[0])
         joint_data.t_pos.append(struct.unpack(">h", frame[offset + 4:offset + 6])[0] / MAX_INT16 * JOINT_POSMAX)
@@ -145,6 +181,7 @@ class SerialConnection:
         joint_data.tq_PID.append(struct.unpack(">h", frame[offset + 25:offset + 27])[0] / MAX_INT16 * JOINT_TORQUEMAX)
         joint_data.tq_fr.append(struct.unpack(">h", frame[offset + 27:offset + 29])[0] / MAX_INT16 * JOINT_TORQUEMAX)
         joint_data.tq_ID.append(struct.unpack(">h", frame[offset + 29:offset + 31])[0] / MAX_INT16 * JOINT_TORQUEMAX)
+        joint_data.t_err.append(joint_data.t_pos[-1]-joint_data.c_pos[-1])
 
 if __name__ == '__main__':
     ser = SerialConnection()
